@@ -16,14 +16,16 @@
     "@types/node": "7.0.7",
     "@types/winston": "^2.3.9",
     "chai": "^4.1.2",
+    "hemera-testsuite": "^4.1.0",
     "mocha": "^5.2.0",
     "ts-node": "^6.0.5",
-    "typescript": "^2.8.3"
+    "typescript": "^2.9.1"
   },
   "dependencies": {
     "hemera-joi": "^5.2.1",
     "nats": "^0.8.10",
-    "nats-hemera": "^5.6.0",
+    "nats-hemera": "^5.7.1",
+    "pogi": "^2.5.9",
     "winston": "^2.4.2"
   }
 }
