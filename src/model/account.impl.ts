@@ -1,20 +1,8 @@
-import { logger } from './logger';
-import {AccountData} from "./persistence/account.persistence";
+import {logger} from "../logger";
+import {AccountData} from "./account.data";
+import {Account} from "./account";
 
-export interface IAccount {
-
-  readonly id:number;
-  readonly balance: number;
-  readonly owner: number;
-  readonly datetime: Date;
-  readonly negative: boolean;
-
-  deposit(amount: number): IAccount;
-  debit(amount: number): IAccount;
-
-}
-
-export class Account implements IAccount{
+export class AccountImpl implements Account{
 
   static DEFAULT_DATA: AccountData = {
     negative: false,
@@ -24,7 +12,7 @@ export class Account implements IAccount{
   private data: AccountData;
 
   constructor(data?:AccountData) {
-    this.data = Object.assign({...Account.DEFAULT_DATA}, data);
+    this.data = Object.assign({...AccountImpl.DEFAULT_DATA}, data);
     // explicit type
     this.data.balance = Number(this.data.balance);
   }
@@ -49,6 +37,10 @@ export class Account implements IAccount{
     return this.data.negative;
   }
 
+  set negative(value: boolean) {
+    this.data.negative = value;
+  }
+
   /**
    * increase account balance
    * expect amount > 0
@@ -56,8 +48,8 @@ export class Account implements IAccount{
    * @throws NegativeAmountError, ZeroAmountError
    */
   public deposit(amount: number): Account {
-    if (amount < 0) throw new NegativeAmountError('Account does not accept negative amount on deposit');
-    if (amount === 0) throw new ZeroAmountError('Account does not accept zero amount on deposit');
+    if (amount < 0) throw new Error('Account does not accept negative amount on deposit');
+    if (amount === 0) throw new Error('Account does not accept zero amount on deposit');
     logger.debug(`increase balance by ${amount}`);
     this.data.balance += amount;
     // TODO create transaction entry
@@ -68,8 +60,8 @@ export class Account implements IAccount{
    * @param {number} amount
    */
   public debit(amount: number): Account {
-    if (amount < 0) throw new NegativeAmountError('Account does not accept negative amount on debit');
-    if (amount === 0) throw new ZeroAmountError('Account does not accept zero amount on debit');
+    if (amount < 0) throw new Error('Account does not accept negative amount on debit');
+    if (amount === 0) throw new Error('Account does not accept zero amount on debit');
     if (!this.data.negative && this.data.balance - amount < 0) throw new NegativeBalanceError('Account does not accept negative balance');
     logger.debug(`decreased balance by ${amount}`);
     this.data.balance -= amount;
@@ -78,7 +70,6 @@ export class Account implements IAccount{
   }
 
 }
-
 
 export class NegativeAmountError extends Error { }
 export class ZeroAmountError extends Error { }

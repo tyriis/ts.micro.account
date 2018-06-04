@@ -1,7 +1,7 @@
 import * as NATS from 'nats';
 import * as Hemera from 'nats-hemera';
 import * as HemeraJoi from 'hemera-joi'
-import {AccountService, AccountServiceImpl} from './account';
+import {AccountService, AccountServiceImpl} from './model/account';
 import {PgDb} from 'pogi';
 
 import {AccountPersistence} from "./persistence/account.persistence";

@@ -7,7 +7,7 @@ import {
   NegativeAmountError,
   NegativeBalanceError,
   ZeroAmountError,
-} from './account';
+} from './model/account';
 
 describe('Account', () => {
     describe('When create', () => {

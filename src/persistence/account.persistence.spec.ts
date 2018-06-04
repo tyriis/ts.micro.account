@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import 'mocha';
 
 import { PgDb } from "pogi";
-import { AccountPersistence } from "./account.persistence";
-import {Account} from "../account";
+import {AccountPersistenceImpl} from "./account.persistence.impl";
+import {AccountImpl} from "../model/account.impl";
 
 describe('Account persistence', () => {
   let pgdb;
@@ -12,7 +12,7 @@ describe('Account persistence', () => {
     pgdb = await PgDb.connect({
       connectionString: process.env.PG_URL
     });
-    persistence = new AccountPersistence(pgdb);
+    persistence =new AccountPersistenceImpl(pgdb);
     return await true;
   });
 
@@ -147,7 +147,7 @@ describe('Account persistence', () => {
     it('Should store balance in database', async () => {
       const id = await persistence.create(1).then(acc => acc.id);
       const balance = 1000;
-      let account = new Account({
+      let account =new AccountImpl({
         id, balance
       });
       await persistence.update(account);
@@ -158,7 +158,7 @@ describe('Account persistence', () => {
           expect(Number(account.balance)).to.be.equal(balance);
       });
       const negativeBalance = balance * -1;
-      account = new Account({
+      account =new AccountImpl({
         id, balance: negativeBalance
       });
       await  persistence.update(account);
@@ -173,7 +173,7 @@ describe('Account persistence', () => {
     it('Should not store new id in database', async () => {
       const id = await persistence.create(1).then(acc => acc.id);
       const balance = 1000;
-      let account = new Account({
+      let account =new AccountImpl({
         id: id + 1, balance
       });
       await persistence.update(account).then(account => {
@@ -191,7 +191,7 @@ describe('Account persistence', () => {
       const datetime = account.datetime;
       const negative = account.negative;
       const balance = 1000;
-      await persistence.update(new Account({
+      await persistence.update(new AccountImpl({
         id, balance, owner: 2, datetime: new Date(), negative: !negative
       })).then(account => {
         expect(account.owner).to.be.equal(owner);
@@ -210,6 +210,19 @@ describe('Account persistence', () => {
       await persistence.create(1);
       accounts = await persistence.getOwn(1);
       expect(accounts.length).to.be.greaterThan(0);
+      return await true;
+    });
+  });
+
+  describe('When retrieving all accounts', () => {
+    it('Should return an array of all accounts', async () => {
+      await persistence.create(1);
+      await persistence.create(2);
+      await persistence.create(3);
+      let accounts = await persistence.getAll();
+      let ids = new Set(accounts.map(account => account.id));
+      expect(ids.size).to.be.greaterThan(2);
+      return await true;
     });
   });
 });
