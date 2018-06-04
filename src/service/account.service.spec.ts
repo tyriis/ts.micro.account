@@ -1,84 +1,18 @@
 import { expect } from 'chai';
 import 'mocha';
-import {AccountPersistence} from "../persistence/account.persistence";
-import {Account} from "../model/account";
 import {AccountService} from "./account.service";
 import {AccountServiceImpl} from "./account.service.impl";
-import {Request} from "../model/request"
-import {AccountImpl} from "../model/account.impl";
+import {RequestGenerator} from "../test/request.generator";
+import {AccountPersistenceDummy} from "../test/account.persistence.dummy";
+
 const ERRORS = require('../errors.json');
-
-const dummyAccount = {
-  id: 1,
-  owner: 1,
-  balance: 100,
-  datetime: new Date(),
-  negative: false,
-};
-
-class AccountPersistenceDummy implements AccountPersistence {
-
-  async create (owner: number): Promise<Account> {
-    return await new AccountImpl(dummyAccount);
-  }
-
-  async get (id: number): Promise<Account> {
-    return await new AccountImpl(dummyAccount);
-  }
-
-  async getOwn (owner: number): Promise<Array<Account>> {
-    return await [new AccountImpl(dummyAccount)];
-  }
-
-  async remove (account: Account): Promise<number> {
-    let id: number = account.id;
-    return await id;
-  }
-
-  async update (account: Account): Promise<Account> {
-    return await new AccountImpl(account);
-  }
-
-  async getAll (): Promise<Array<Account>> {
-    return await [new AccountImpl(dummyAccount)];
-  }
-}
-
-class RequestGenerator {
-
-  private base:string;
-  private count: number;
-
-  constructor() {
-    this.base = `test-${Date.now()}-`;
-    this.count = 1;
-  };
-
-  get id(): string {
-    return `${this.base}${this.count++}`;
-  }
-
-  getValid(): Request {
-    return {
-      id: this.id,
-      user: {id: 1, roles: ['USER']},
-    };
-  }
-
-  getInvalid(): Request {
-    return {
-      id: this.id,
-      user: {id: 1, roles: []},
-    };
-  }
-}
 
 describe('AccountService', () => {
   let persistence;
   let requestGenerator: RequestGenerator;
   before(() => {
     persistence = new AccountPersistenceDummy();
-    requestGenerator = new RequestGenerator();
+    requestGenerator = new RequestGenerator('service-test');
   });
 
   describe('create', () => {
@@ -142,7 +76,6 @@ describe('AccountService', () => {
       await service.get(1).then(account => {
         expect(account).not.to.be.undefined;
       }).catch(err => {
-        console.log(err);
         expect(err.message === ERRORS.MISSING_PERMISSION).to.be.true;
         expect(err.name === 'Error').to.be.true;
       });

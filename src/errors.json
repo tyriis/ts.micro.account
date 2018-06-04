@@ -1,4 +1,9 @@
 {
   "MISSING_PERMISSION": "missing permission",
-  "INVALID_USER": "invalid user"
+  "INVALID_USER": "invalid user",
+  "NEGATIVE_DEPOSIT": "Account does not accept negative amount on deposit",
+  "ZERO_DEPOSIT": "Account does not accept zero amount on deposit",
+  "NEGATIVE_DEBIT": "Account does not accept negative amount on debit",
+  "ZERO_DEBIT": "Account does not accept zero amount on debit",
+  "NEGATIVE_BALANCE": "Account does not accept negative balance"
 }

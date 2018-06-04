@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "main": "ts-node $NODE_DEBUG_OPTION src/app.ts",
-    "test": "mocha -r ts-node/register src/**/*.spec.ts"
+    "test": "mocha -r ts-node/register src/*.spec.ts src/**/*.spec.ts"
   },
   "keywords": [],
   "author": "",

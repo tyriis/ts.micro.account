@@ -2,6 +2,7 @@ import {AccountPersistence} from "../persistence/account.persistence";
 import {Account} from '../model/account';
 import {Request} from '../model/request'
 import {AccountService} from "./account.service";
+import {logger} from "../logger";
 
 const ERRORS = require('../errors.json');
 
@@ -10,6 +11,7 @@ export class AccountServiceImpl implements AccountService {
   constructor(private persistence: AccountPersistence, private req:Request) { }
 
   async close (id: number): Promise<boolean> {
+    logger.debug(`[account.service.close] {"id": ${id}} > ${JSON.stringify(this.req)}`);
     let account: Account = await this.retrieve(id);
     return await this.persistence.remove(account).then((id: number) => {
       return id === account.id;
@@ -17,6 +19,7 @@ export class AccountServiceImpl implements AccountService {
   }
 
   async closeAll (): Promise<boolean> {
+    logger.debug(`[account.service.close.all] > ${JSON.stringify(this.req)}`);
     this.checkUser();
     return await this.persistence.getOwn(this.req.user.id).then(
       async (accounts: Array<Account>) =>  {
@@ -26,27 +29,32 @@ export class AccountServiceImpl implements AccountService {
   }
 
   async create (): Promise<Account> {
+    logger.debug(`[account.service.create] > ${JSON.stringify(this.req)}`);
     this.checkUser();
     return this.persistence.create(this.req.user.id);
   }
 
   async debit (id: number, amount: number): Promise<Account> {
+    logger.debug(`[account.service.debit] {"id": ${id}, "amount": ${amount}} > ${JSON.stringify(this.req)}`);
     let account: Account = await this.retrieve(id);
     account.debit(amount);
     return await this.persistence.update(account);
   }
 
   async deposit (id: number, amount: number): Promise<Account> {
+    logger.debug(`[account.service.deposit] {"id": ${id}, "amount": ${amount}} > ${JSON.stringify(this.req)}`);
     let account: Account = await this.retrieve(id);
     account.deposit(amount);
     return await this.persistence.update(account);
   }
 
   async get (id: number): Promise<Account> {
+    logger.debug(`[account.service.get] {"id": ${id}} > ${JSON.stringify(this.req)}`);
     return await this.retrieve(id);
   }
 
   async getAll (): Promise<Array<Account>> {
+    logger.debug(`[account.service.get.all] > ${JSON.stringify(this.req)}`);
     this.checkUser();
     if (this.req.user.roles.indexOf('ADMIN') >= 0) {
       return await this.persistence.getAll();
@@ -55,13 +63,17 @@ export class AccountServiceImpl implements AccountService {
   }
 
   async setNegativeFlag (id: number, value: boolean): Promise<Account> {
+    logger.debug(`[account.service.get] {"id": ${id}, "value": ${value}} > ${JSON.stringify(this.req)}`);
     let account = await this.retrieve(id);
     account.negative = value;
     return await this.persistence.update(account);
   }
 
   private checkUser():void {
-    if (!this.isUser()) throw new Error(ERRORS.MISSING_PERMISSION);
+    if (!this.isUser()) {
+      logger.error(`[${ERRORS.MISSING_PERMISSION}] > ${JSON.stringify(this.req)}`);
+      throw new Error(ERRORS.MISSING_PERMISSION);
+    }
   }
 
   private isUser():boolean {
@@ -79,6 +91,7 @@ export class AccountServiceImpl implements AccountService {
     if (account.owner === this.req.user.id || this.isAdmin()) {
       return await account;
     }
+    logger.error(`[${ERRORS.MISSING_PERMISSION}] > ${JSON.stringify(this.req)}`);
     throw new Error(ERRORS.MISSING_PERMISSION);
   }
 

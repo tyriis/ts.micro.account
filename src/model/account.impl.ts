@@ -1,6 +1,7 @@
 import {logger} from "../logger";
 import {AccountData} from "./account.data";
-import {Account} from "./account";
+import {Account, NegativeAmountError, NegativeBalanceError, ZeroAmountError} from "./account";
+const ERRORS = require('../errors.json');
 
 export class AccountImpl implements Account{
 
@@ -13,7 +14,9 @@ export class AccountImpl implements Account{
 
   constructor(data?:AccountData) {
     this.data = Object.assign({...AccountImpl.DEFAULT_DATA}, data);
-    // explicit type
+    if (!this.data.negative && this.data.balance < 0) {
+      throw new NegativeBalanceError(ERRORS.NEGATIVE_BALANCE);
+    }
     this.data.balance = Number(this.data.balance);
   }
 
@@ -48,8 +51,8 @@ export class AccountImpl implements Account{
    * @throws NegativeAmountError, ZeroAmountError
    */
   public deposit(amount: number): Account {
-    if (amount < 0) throw new Error('Account does not accept negative amount on deposit');
-    if (amount === 0) throw new Error('Account does not accept zero amount on deposit');
+    if (amount < 0) throw new NegativeAmountError(ERRORS.NEGATIVE_DEPOSIT);
+    if (amount === 0) throw new ZeroAmountError(ERRORS.ZERO_DEPOSIT);
     logger.debug(`increase balance by ${amount}`);
     this.data.balance += amount;
     // TODO create transaction entry
@@ -60,9 +63,9 @@ export class AccountImpl implements Account{
    * @param {number} amount
    */
   public debit(amount: number): Account {
-    if (amount < 0) throw new Error('Account does not accept negative amount on debit');
-    if (amount === 0) throw new Error('Account does not accept zero amount on debit');
-    if (!this.data.negative && this.data.balance - amount < 0) throw new NegativeBalanceError('Account does not accept negative balance');
+    if (amount < 0) throw new NegativeAmountError(ERRORS.NEGATIVE_DEBIT);
+    if (amount === 0) throw new ZeroAmountError(ERRORS.ZERO_DEBIT);
+    if (!this.data.negative && this.data.balance - amount < 0) throw new NegativeBalanceError(ERRORS.NEGATIVE_BALANCE);
     logger.debug(`decreased balance by ${amount}`);
     this.data.balance -= amount;
     // TODO create transaction entry
@@ -71,6 +74,3 @@ export class AccountImpl implements Account{
 
 }
 
-export class NegativeAmountError extends Error { }
-export class ZeroAmountError extends Error { }
-export class NegativeBalanceError extends Error { }

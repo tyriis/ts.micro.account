@@ -5,7 +5,7 @@ import { PgDb } from "pogi";
 import {AccountPersistenceImpl} from "./account.persistence.impl";
 import {AccountImpl} from "../model/account.impl";
 
-describe('Account persistence', () => {
+describe('AccountPersistence', () => {
   let pgdb;
   let persistence;
   before(async () => {
@@ -159,7 +159,7 @@ describe('Account persistence', () => {
       });
       const negativeBalance = balance * -1;
       account =new AccountImpl({
-        id, balance: negativeBalance
+        id, balance: negativeBalance, negative: true
       });
       await  persistence.update(account);
       await pgdb.queryFirst(
