@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "main": "ts-node $NODE_DEBUG_OPTION src/app.ts",
+    "main": "ts-node $NODE_DEBUG_OPTION src/nats.app.ts",
     "test": "mocha -r ts-node/register src/*.spec.ts src/**/*.spec.ts"
   },
   "keywords": [],

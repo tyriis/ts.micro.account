@@ -20,10 +20,12 @@ describe('App', () => {
     return await hemera.ready();
   });
 
-  describe('Account create', () => {
+  describe('CREATE', () => {
     it('Should reject if meta$ is not set', (done) => {
       hemera.act({
-        topic: 'CREATE.account',
+        topic: 'account',
+        cmd: 'CREATE',
+        requestId$: requestGenerator.id,
       }, (err, resp) => {
         expect(err).to.be.not.null;
         expect(err.message === 'missing permission').to.be.true;
@@ -33,11 +35,12 @@ describe('App', () => {
     });
     it('Should reject if user.roles is not set in meta$', (done) => {
       hemera.act({
-        topic: 'CREATE.account',
+        topic: 'account',
+        cmd: 'CREATE',
         meta$: {
           id: requestGenerator.id,
           user: {id: 1},
-        }
+        },
       }, (err, resp) => {
         expect(err).to.be.not.null;
         expect(err.message === 'missing permission').to.be.true;
@@ -47,11 +50,12 @@ describe('App', () => {
     });
     it('Should reject if role USER is missing', (done) => {
       hemera.act({
-          topic: 'CREATE.account',
-          meta$: {
+        topic: 'account',
+        cmd: 'CREATE',
+        meta$: {
             id: requestGenerator.id,
             user: {id: 1, roles: ['FOO', 'BAR']},
-          }
+          },
         }, (err, resp) => {
           expect(err).to.be.not.null;
           expect(err.message === 'missing permission').to.be.true;
@@ -62,7 +66,8 @@ describe('App', () => {
     });
     it('Should return a new account if role USER is set', (done) => {
       hemera.act({
-        topic: 'CREATE.account',
+        topic: 'account',
+        cmd: 'CREATE',
         meta$: requestGenerator.getValid(),
       }, (err, resp) => {
         expect(err).to.be.null;
@@ -76,7 +81,8 @@ describe('App', () => {
   describe('GET.account', () => {
     it('Should reject if meta$ is not set', (done) => {
       hemera.act({
-        topic: 'GET.account',
+        topic: 'account',
+        cmd: 'GET',
         id: 1,
       }, (err, resp) => {
         expect(err).to.be.not.null;
@@ -87,7 +93,8 @@ describe('App', () => {
     });
     it('Should reject if user.roles is not set in meta$.user', (done) => {
       hemera.act({
-        topic: 'GET.account',
+        topic: 'account',
+        cmd: 'GET',
         id: 1,
         meta$: {
           id: requestGenerator.id,
@@ -102,7 +109,8 @@ describe('App', () => {
     });
     it('Should reject if role USER is missing', (done) => {
       hemera.act({
-        topic: 'GET.account',
+        topic: 'account',
+        cmd: 'GET',
         id: 1,
         meta$: {
           id: requestGenerator.id,
@@ -117,7 +125,8 @@ describe('App', () => {
     });
     it('Should return a new account if role USER is set', (done) => {
       hemera.act({
-        topic: 'GET.account',
+        topic: 'account',
+        cmd: 'GET',
         id: 1,
         meta$: requestGenerator.getValid(),
       }, (err, resp) => {
@@ -129,12 +138,11 @@ describe('App', () => {
     });
   });
 
-  describe('GET.account.all', () => {
+  describe('GET.all', () => {
     it('Should reject if meta$ is not set', (done) => {
       hemera.act({
-        topic: 'GET.account.all',
-        id: 1,
-        amount: 100,
+        topic: 'account',
+        cmd: 'GET.all',
       }, (err, resp) => {
         expect(err).to.be.not.null;
         expect(err.message === 'missing permission').to.be.true;
@@ -144,7 +152,8 @@ describe('App', () => {
     });
     it('Should reject if user.roles is not set in meta$.user', (done) => {
       hemera.act({
-        topic: 'GET.account.all',
+        topic: 'account',
+        cmd: 'GET.all',
         meta$: {
           id: requestGenerator.id,
           user: {id: 1},
@@ -158,7 +167,8 @@ describe('App', () => {
     });
     it('Should reject if role USER is missing', (done) => {
       hemera.act({
-        topic: 'GET.account.all',
+        topic: 'account',
+        cmd: 'GET.all',
         meta$: {
           id: requestGenerator.id,
           user: {id: 1, roles: ['FOO', 'BAR']},
@@ -172,7 +182,8 @@ describe('App', () => {
     });
     it('Should accept if role USER is set', (done) => {
       hemera.act({
-        topic: 'GET.account.all',
+        topic: 'account',
+        cmd: 'GET.all',
         meta$: requestGenerator.getValid(),
       }, (err, resp) => {
         let owner = new Set(resp.map(acc => acc.data.owner));
@@ -184,10 +195,11 @@ describe('App', () => {
     });
   });
 
-  describe('CALL.account.debit', () => {
+  describe('CALL.debit', () => {
     it('Should reject if meta$ is not set', (done) => {
       hemera.act({
-        topic: 'CALL.account.debit',
+        topic: 'account',
+        cmd: 'CALL.debit',
         id: 1,
         amount: 100,
       }, (err, resp) => {
@@ -199,7 +211,8 @@ describe('App', () => {
     });
     it('Should reject if user.roles is not set in meta$.user', (done) => {
       hemera.act({
-        topic: 'CALL.account.debit',
+        topic: 'account',
+        cmd: 'CALL.debit',
         id: 1,
         amount: 100,
         meta$: {
@@ -215,7 +228,8 @@ describe('App', () => {
     });
     it('Should reject if role USER is missing', (done) => {
       hemera.act({
-        topic: 'CALL.account.debit',
+        topic: 'account',
+        cmd: 'CALL.debit',
         id: 1,
         amount: 100,
         meta$: {
@@ -231,7 +245,8 @@ describe('App', () => {
     });
     it('Should accept if role USER is set', (done) => {
       hemera.act({
-        topic: 'CALL.account.debit',
+        topic: 'account',
+        cmd: 'CALL.debit',
         id: 1,
         amount: 100,
         meta$: requestGenerator.getValid(),
@@ -244,10 +259,11 @@ describe('App', () => {
     });
   });
 
-  describe('CALL.account.deposit', () => {
+  describe('CALL.deposit', () => {
     it('Should reject if meta$ is not set', (done) => {
       hemera.act({
-        topic: 'CALL.account.deposit',
+        topic: 'account',
+        cmd: 'CALL.deposit',
         id: 1,
         amount: 100,
       }, (err, resp) => {
@@ -259,7 +275,8 @@ describe('App', () => {
     });
     it('Should reject if user.roles is not set in meta$.user', (done) => {
       hemera.act({
-        topic: 'CALL.account.deposit',
+        topic: 'account',
+        cmd: 'CALL.deposit',
         id: 1,
         amount: 100,
         meta$: {
@@ -275,7 +292,8 @@ describe('App', () => {
     });
     it('Should reject if role USER is missing', (done) => {
       hemera.act({
-        topic: 'CALL.account.deposit',
+        topic: 'account',
+        cmd: 'CALL.deposit',
         id: 1,
         amount: 100,
         meta$: {
@@ -291,7 +309,8 @@ describe('App', () => {
     });
     it('Should accept if role USER is set', (done) => {
       hemera.act({
-        topic: 'CALL.account.deposit',
+        topic: 'account',
+        cmd: 'CALL.deposit',
         id: 1,
         amount: 100,
         meta$: requestGenerator.getValid(),
@@ -304,10 +323,11 @@ describe('App', () => {
     });
   });
 
-  describe('CLOSE.account', () => {
+  describe('CLOSE', () => {
     it('Should reject if meta$ is not set', (done) => {
       hemera.act({
-        topic: 'CLOSE.account',
+        topic: 'account',
+        cmd: 'CLOSE',
         id: 1,
       }, (err, resp) => {
         expect(err).to.be.not.null;
@@ -318,7 +338,8 @@ describe('App', () => {
     });
     it('Should reject if user.roles is not set in meta$.user', (done) => {
       hemera.act({
-        topic: 'CLOSE.account',
+        topic: 'account',
+        cmd: 'CLOSE',
         id: 1,
         meta$: {
           id: requestGenerator.id,
@@ -333,7 +354,8 @@ describe('App', () => {
     });
     it('Should reject if role USER is missing', (done) => {
       hemera.act({
-        topic: 'CLOSE.account',
+        topic: 'account',
+        cmd: 'CLOSE',
         id: 1,
         meta$: {
           id: requestGenerator.id,
@@ -348,7 +370,8 @@ describe('App', () => {
     });
     it('Should accept if role USER is set', (done) => {
       hemera.act({
-        topic: 'CREATE.account',
+        topic: 'account',
+        cmd: 'CREATE',
         meta$: {
           id: requestGenerator.id,
           user: {id: 22, roles: ['USER']},
@@ -356,7 +379,8 @@ describe('App', () => {
       }, (err, resp) => {
         let id = resp.data.id;
         hemera.act({
-          topic: 'CLOSE.account',
+          topic: 'account',
+          cmd: 'CLOSE',
           id: id,
           meta$: {
             id: requestGenerator.id,
@@ -372,7 +396,8 @@ describe('App', () => {
     });
     it('Should reject if different user', (done) => {
       hemera.act({
-        topic: 'CREATE.account',
+        topic: 'account',
+        cmd: 'CREATE',
         meta$: {
           id: requestGenerator.id,
           user: {id: 22, roles: ['USER']},
@@ -380,7 +405,8 @@ describe('App', () => {
       }, (err, resp) => {
         let id = resp.data.id;
         hemera.act({
-          topic: 'CLOSE.account',
+          topic: 'account',
+          cmd: 'CLOSE',
           id: id,
           meta$: requestGenerator.getValid(),
         }, (err, resp) => {
@@ -393,7 +419,8 @@ describe('App', () => {
     });
     it('Should accept if different user has role ADMIN', (done) => {
       hemera.act({
-        topic: 'CREATE.account',
+        topic: 'account',
+        cmd: 'CREATE',
         meta$: {
           id: requestGenerator.id,
           user: {id: 22, roles: ['USER']},
@@ -401,7 +428,8 @@ describe('App', () => {
       }, (err, resp) => {
         let id = resp.data.id;
         hemera.act({
-          topic: 'CLOSE.account',
+          topic: 'account',
+          cmd: 'CLOSE',
           id: id,
           meta$: {
             id: requestGenerator.id,
@@ -417,10 +445,11 @@ describe('App', () => {
     });
   });
 
-  describe('CLOSE.account.all', () => {
+  describe('CLOSE.all', () => {
     it('Should reject if meta$ is not set', (done) => {
       hemera.act({
-        topic: 'CLOSE.account.all',
+        topic: 'account',
+        cmd: 'CLOSE.all',
       }, (err, resp) => {
         expect(err).to.be.not.null;
         expect(err.message === 'missing permission').to.be.true;
@@ -430,7 +459,8 @@ describe('App', () => {
     });
     it('Should reject if user.roles is not set in meta$.user', (done) => {
       hemera.act({
-        topic: 'CLOSE.account.all',
+        topic: 'account',
+        cmd: 'CLOSE.all',
         id: 1,
         meta$: {
           id: requestGenerator.id,
@@ -445,7 +475,8 @@ describe('App', () => {
     });
     it('Should reject if role USER is missing', (done) => {
       hemera.act({
-        topic: 'CLOSE.account.all',
+        topic: 'account',
+        cmd: 'CLOSE.all',
         id: 1,
         meta$: {
           id: requestGenerator.id,
@@ -460,7 +491,8 @@ describe('App', () => {
     });
     it('Should accept if role USER is set', (done) => {
       hemera.act({
-        topic: 'CREATE.account',
+        topic: 'account',
+        cmd: 'CREATE',
         meta$: {
           id: requestGenerator.id,
           user: {id: 22, roles: ['USER']},
@@ -468,7 +500,8 @@ describe('App', () => {
       }, (err, resp) => {
         let id = resp.data.id;
         hemera.act({
-          topic: 'CLOSE.account.all',
+          topic: 'account',
+          cmd: 'CLOSE.all',
           meta$: {
             id: requestGenerator.id,
             user: {id: 22, roles: ['USER']},
@@ -483,10 +516,11 @@ describe('App', () => {
     });
   });
 
-  describe('SET.account.negative', () => {
+  describe('SET.negative', () => {
     it('Should reject if meta$ is not set', (done) => {
       hemera.act({
-        topic: 'SET.account.negative',
+        topic: 'account',
+        cmd: 'SET.negative',
         id: 1,
         value: true,
       }, (err, resp) => {
@@ -498,7 +532,8 @@ describe('App', () => {
     });
     it('Should reject if user.roles is not set in meta$.user', (done) => {
       hemera.act({
-        topic: 'SET.account.negative',
+        topic: 'account',
+        cmd: 'SET.negative',
         id: 1,
         value: true,
         meta$: {
@@ -514,7 +549,8 @@ describe('App', () => {
     });
     it('Should reject if role USER is missing', (done) => {
       hemera.act({
-        topic: 'SET.account.negative',
+        topic: 'account',
+        cmd: 'SET.negative',
         id: 1,
         value: true,
         meta$: {
@@ -530,7 +566,8 @@ describe('App', () => {
     });
     it('Should accept if role USER is set', (done) => {
       hemera.act({
-        topic: 'CREATE.account',
+        topic: 'account',
+        cmd: 'CREATE',
         meta$: {
           id: requestGenerator.id,
           user: {id: 22, roles: ['USER']},
@@ -538,7 +575,8 @@ describe('App', () => {
       }, (err, resp) => {
         let id = resp.data.id;
         hemera.act({
-          topic: 'SET.account.negative',
+          topic: 'account',
+          cmd: 'SET.negative',
           id: id,
           value: true,
           meta$: {
@@ -555,7 +593,8 @@ describe('App', () => {
     });
     it('Should reject if different user', (done) => {
       hemera.act({
-        topic: 'CREATE.account',
+        topic: 'account',
+        cmd: 'CREATE',
         meta$: {
           id: requestGenerator.id,
           user: {id: 22, roles: ['USER']},
@@ -563,7 +602,8 @@ describe('App', () => {
       }, (err, resp) => {
         let id = resp.data.id;
         hemera.act({
-          topic: 'SET.account.negative',
+          topic: 'account',
+          cmd: 'SET.negative',
           id: id,
           value: true,
           meta$: requestGenerator.getValid(),
@@ -577,7 +617,8 @@ describe('App', () => {
     });
     it('Should accept if different user has role ADMIN', (done) => {
       hemera.act({
-        topic: 'CREATE.account',
+        topic: 'account',
+        cmd: 'CREATE',
         meta$: {
           id: requestGenerator.id,
           user: {id: 22, roles: ['USER']},
@@ -585,7 +626,8 @@ describe('App', () => {
       }, (err, resp) => {
         let id = resp.data.id;
         hemera.act({
-          topic: 'SET.account.negative',
+          topic: 'account',
+          cmd: 'SET.negative',
           id: id,
           value: true,
           meta$: {

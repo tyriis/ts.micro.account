@@ -6,6 +6,7 @@ import {AccountPersistence} from "./persistence/account.persistence";
 import {AccountService} from "./service/account.service";
 import {AccountServiceImpl} from "./service/account.service.impl";
 import {AccountPersistenceImpl} from "./persistence/account.persistence.impl";
+import {Account} from './model/account'
 import {Client} from "nats";
 import {logger, pogiLogger} from "./logger";
 
@@ -22,7 +23,6 @@ const hemera: Hemera = new Hemera(nats, {
 });
 
 let persistence: AccountPersistence;
-let service: AccountService;
 
 (async()=> {
   const pgdb: PgDb = await PgDb.connect({
@@ -38,66 +38,85 @@ let service: AccountService;
   const Joi = hemera['joi'];
 
   hemera.add({
-    topic: 'GET.account',
+    topic: 'account',
+    cmd: 'GET',
     id: Joi.number().required(),
   }, async function(req) {
-    service = new AccountServiceImpl(persistence, this.meta$);
+    let service: AccountService = new AccountServiceImpl(persistence, this.meta$);
     return await service.get(req.id);
   });
 
   hemera.add({
-    topic: 'CREATE.account',
+    topic: 'account',
+    cmd: 'CREATE'
   }, async function(req) {
-    service = new AccountServiceImpl(persistence, this.meta$);
-    return await service.create();
+    let meta = this.meta$;
+    let service: AccountService = new AccountServiceImpl(persistence, meta);
+    let acc: Account = await service.create();
+    hemera.act({
+      pubsub$: true,
+      topic: 'account',
+      cmd: 'CREATED',
+      acc: acc,
+      meta$: meta,
+    });
+    return acc;
   });
 
   hemera.add({
-    topic: 'CALL.account.debit',
+    topic: 'account',
+    cmd: 'CALL.debit',
     id: Joi.number().required(),
     amount: Joi.number().required(),
   }, async function(req) {
-    service = new AccountServiceImpl(persistence, this.meta$);
+    let meta = this.meta$;
+    let service: AccountService = new AccountServiceImpl(persistence, meta);
     return await service.debit(req.id, req.amount);
   });
 
   hemera.add({
-    topic: 'CALL.account.deposit',
+    topic: 'account',
+    cmd: 'CALL.deposit',
     id: Joi.number().required(),
     amount: Joi.number().required(),
   }, async function(req) {
-    service = new AccountServiceImpl(persistence, this.meta$);
+    let service: AccountService = new AccountServiceImpl(persistence, this.meta$);
     return await service.deposit(req.id, req.amount);
   });
 
   hemera.add({
-    topic: 'CLOSE.account',
+    topic: 'account',
+    cmd: 'CLOSE',
     id: Joi.number().required(),
   }, async function(req) {
-    service = new AccountServiceImpl(persistence, this.meta$);
+    let meta = this.meta$;
+    let service: AccountService = new AccountServiceImpl(persistence, meta);
     return await service.close(req.id);
   });
 
   hemera.add({
-    topic: 'CLOSE.account.all',
+    topic: 'account',
+    cmd: 'CLOSE.all',
   }, async function(req) {
-    service = new AccountServiceImpl(persistence, this.meta$);
+    let service: AccountService = new AccountServiceImpl(persistence, this.meta$);
     return await service.closeAll();
   });
 
   hemera.add({
-    topic: 'GET.account.all',
+    topic: 'account',
+    cmd: 'GET.all',
   }, async function(req) {
-    service = new AccountServiceImpl(persistence, this.meta$);
+    let service: AccountService = new AccountServiceImpl(persistence, this.meta$);
     return await service.getAll();
   });
 
   hemera.add({
-    topic: 'SET.account.negative',
+    topic: 'account',
+    cmd: 'SET.negative',
     id: Joi.number().required(),
     value: Joi.boolean().required(),
   }, async function(req) {
-    service = new AccountServiceImpl(persistence, this.meta$);
+    let service: AccountService = new AccountServiceImpl(persistence, this.meta$);
     return await service.setNegativeFlag(req.id, req.value);
   })
 

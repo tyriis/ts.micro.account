@@ -105,6 +105,6 @@ export class AccountPersistenceImpl implements AccountPersistence {
       'SELECT id, owner, balance, datetime, negative FROM account'
     ).then((results: Array<AccountData>) => {
       return results.map(data => new AccountImpl(data));
-    })
+    });
   }
 }
