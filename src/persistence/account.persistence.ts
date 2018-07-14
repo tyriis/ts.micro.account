@@ -1,4 +1,6 @@
 import { Account } from "../model/account";
+import {TransactionType} from "../model/transaction.type";
+import {Transaction} from "../model/transaction";
 
 export interface AccountPersistence {
 
@@ -48,4 +50,7 @@ export interface AccountPersistence {
    */
   remove(account: Account): Promise<number>;
 
+  createTransaction(type: TransactionType, account: Account, amount: number): Promise<void>;
+
+  getTransactions(account): Promise<Array<Transaction>>;
 }

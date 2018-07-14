@@ -5,6 +5,8 @@ import {AccountPersistence} from "./account.persistence";
 // import {logger} from "../logger";
 import * as fs from "fs";
 import {AccountImpl} from "../model/account.impl";
+import {TransactionType} from "../model/transaction.type";
+import {Transaction} from "../model/transaction";
 
 export class AccountPersistenceImpl implements AccountPersistence {
 
@@ -100,11 +102,25 @@ export class AccountPersistenceImpl implements AccountPersistence {
     });
   }
 
-  async getAll (): Promise<Array<Account>> {
+  async getAll(): Promise<Array<Account>> {
     return await this.db.query(
       'SELECT id, owner, balance, datetime, negative FROM account'
     ).then((results: Array<AccountData>) => {
       return results.map(data => new AccountImpl(data));
     });
+  }
+
+  async createTransaction(type: TransactionType, account: Account, amount: number): Promise<any> {
+    return await this.db.query(
+      'INSERT INTO account_transaction (account, type, amount) VALUES (:account, :type, :amount)',
+      { account: account.id, type, amount }
+    );
+  }
+
+  async getTransactions(account: Account): Promise<Array<Transaction>> {
+    return await this.db.query(
+      'SELECT id, account, type, amount, datetime FROM account_transaction WHERE account = :account',
+      { account: account.id }
+    );
   }
 }

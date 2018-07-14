@@ -3,6 +3,7 @@ import {Account} from '../model/account';
 import {Request} from '../model/request'
 import {AccountService} from "./account.service";
 import {logger} from "../logger";
+import {TransactionType} from "../model/transaction.type";
 
 const ERRORS = require('../errors.json');
 
@@ -69,6 +70,7 @@ export class AccountServiceImpl implements AccountService {
   async debit (id: number, amount: number): Promise<Account> {
     logger.debug(`[account.service.debit] {"id": ${id}, "amount": ${amount}} > ${JSON.stringify(this.req)}`);
     let account: Account = await this.retrieve(id);
+    await this.persistence.createTransaction(TransactionType.DEBIT, account, amount);
     account.debit(amount);
     return await this.persistence.update(account);
   }
@@ -85,6 +87,7 @@ export class AccountServiceImpl implements AccountService {
   async deposit (id: number, amount: number): Promise<Account> {
     logger.debug(`[account.service.deposit] {"id": ${id}, "amount": ${amount}} > ${JSON.stringify(this.req)}`);
     let account: Account = await this.retrieve(id);
+    await this.persistence.createTransaction(TransactionType.DEPOSIT, account, amount);
     account.deposit(amount);
     account = await this.persistence.update(account);
     return account;

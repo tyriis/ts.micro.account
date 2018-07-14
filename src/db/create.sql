@@ -17,13 +17,14 @@ account (
 );
 
 CREATE TABLE IF NOT EXISTS
-transaction (
+account_transaction (
   id BIGSERIAL PRIMARY KEY NOT NULL,
-  owner BIGINT NOT NULL,
   account BIGINT NOT NULL REFERENCES account (id),
   datetime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   type transaction_type NOT NULL,
   amount NUMERIC(12,2) NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS ix_account_transaction_account ON account_transaction (account);
 
 COMMIT;

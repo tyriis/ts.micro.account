@@ -1,6 +1,8 @@
 import {AccountPersistence} from "../persistence/account.persistence";
 import {Account} from "../model/account";
 import {AccountImpl} from "../model/account.impl";
+import {TransactionType} from "../model/transaction.type";
+import {Transaction} from "../model/transaction";
 
 const dummyAccount = {
   id: 1,
@@ -35,5 +37,13 @@ export class AccountPersistenceDummy implements AccountPersistence {
 
   async getAll (): Promise<Array<Account>> {
     return await [new AccountImpl(dummyAccount)];
+  }
+
+  createTransaction (type: TransactionType, account: Account, amount: number): Promise<void> {
+    return undefined;
+  }
+
+  getTransactions (account): Promise<Array<Transaction>> {
+    return undefined;
   }
 }
